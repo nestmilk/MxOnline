@@ -197,7 +197,13 @@ class TeacherListView(View):
     def get(self, request):
         all_teachers = Teacher.objects.all()
 
-        # 对课程机构进行分页
+        sort = request.GET.get("sort", "")
+        if sort:
+            if sort == 'hot':
+                all_teachers = all_teachers.order_by("-click_nums")
+
+
+        # 对讲师进行分页
         try:
             page = request.GET.get('page', 1)
         except PageNotAnInteger:
