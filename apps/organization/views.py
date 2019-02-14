@@ -203,6 +203,8 @@ class TeacherListView(View):
                 all_teachers = all_teachers.order_by("-click_nums")
 
 
+        sorted_teachers = Teacher.objects.all().order_by("-click_nums")[:3]
+
         # 对讲师进行分页
         try:
             page = request.GET.get('page', 1)
@@ -216,5 +218,18 @@ class TeacherListView(View):
 
         return render(request, "teachers-list.html", {
             "all_teachers": teachers,
+            "sorted_teachers": sorted_teachers,
+            "sort": sort,
+
+        })
+
+
+class TeacherDetailView(View):
+    def get(self, request, teacher_id):
+        teacher = Teacher.objects.get(id=int(teacher_id))
+        all_courses =
+        return render(request, "teacher-detail.html", {
+            "teacher": teacher,
+
 
         })
