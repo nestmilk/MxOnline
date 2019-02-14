@@ -233,4 +233,5 @@ class TeacherDetailView(View):
             "teacher": teacher,
             "all_courses": all_courses,
 
+
         })
