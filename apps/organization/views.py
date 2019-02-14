@@ -7,6 +7,7 @@ from pure_pagination import PageNotAnInteger, Paginator, EmptyPage
 # Create your views here.
 from django.views.generic import View
 
+from courses.models import Course
 from operation.models import UserFavorite
 from organization.forms import UserAskForm
 from organization.models import CourseOrg, CityDict, Teacher
@@ -227,9 +228,9 @@ class TeacherListView(View):
 class TeacherDetailView(View):
     def get(self, request, teacher_id):
         teacher = Teacher.objects.get(id=int(teacher_id))
-        all_courses =
+        all_courses = Course.objects.get(teacher = teacher)
         return render(request, "teacher-detail.html", {
             "teacher": teacher,
-
+            "all_courses": all_courses,
 
         })
