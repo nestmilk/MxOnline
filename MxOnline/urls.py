@@ -41,11 +41,13 @@ urlpatterns = [
     #课程机构url配置
     url(r'^org/', include('organization.urls', namespace="org")),
 
-    # 课程相关url配置
+    #课程相关url配置
     url(r'^course/', include('courses.urls', namespace="course")),
 
     #配置html页面针对数据库中上传文件的访问处理函数,这个MDEIA_ROOT是自己引入的
     url(r'^media/(?P<path>.*)$', serve, {"document_root": MEDIA_ROOT}),
 
+    #
+    url(r'^users/', include('users.urls', namespace="users")),
 
 ]
