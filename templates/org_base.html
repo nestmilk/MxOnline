@@ -23,30 +23,33 @@
                         <div class="wp">
                             <div class="fl"><p>服务电话：<b>33333333</b></p></div>
 
-                            {% if request.user.is_authenticated %}
-                                <div class="personal">
-                                    <dl class="user fr">
-                                        <dd>{{ user.username }}<img class="down fr" src="{% static 'images/top_down.png' %}"/></dd>
-                                        <dt><img width="20" height="20" src="{% static 'media/image/2016/12/default_big_14.png' %}"/></dt>
+                        {% if request.user.is_authenticated %}
+                            <div class="personal">
+                                <dl class="user fr">
+                                    <dd>{{ user.username }}<img class="down fr" src="{% static 'images/top_down.png' %}"/></dd>
+                                    <dt><img width="20" height="20" src="{{ MEDIA_URL }}{{ request.user.image }}"/></dt>
+                                </dl>
+                                <div class="userdetail">
+                                    <dl>
+                                        <dt><img width="80" height="80" src="{{ MEDIA_URL }}{{ request.user.image }}"/></dt>
+                                        <dd>
+                                            <h2>{{ request.user.nick_name }}</h2>
+                                            <p>{{ requset.user.username }}</p>
+                                        </dd>
                                     </dl>
-                                    <div class="userdetail">
-                                        <dl>
-                                            <dt><img width="80" height="80" src="{% static 'media/image/2016/12/default_big_14.png' %}"/></dt>
-                                            <dd>
-                                                <h2>{{ request.user.nick_name }}</h2>
-                                                <p>{{ requset.user.username }}</p>
-                                            </dd>
-                                        </dl>
-                                        <div class="btn">
-                                            <a class="personcenter fl" href="{% url 'users:user_info' %}">进入个人中心</a>
-                                            <a class="fr" href="/logout/">退出</a>
-                                        </div>
+                                    <div class="btn">
+                                        <a class="personcenter fl" href="{% url 'users:user_info' %}">进入个人中心</a>
+                                        <a class="fr" href="{% url 'logout' %}">退出</a>
                                     </div>
                                 </div>
-                            {% else %}
-                                <a style="color:white" class="fr registerbtn" href="{% url 'register' %}">注册</a>
-                                <a style="color:white" class="fr loginbtn" href="{% url 'login' %}">登录</a>
-                            {% endif %}
+                                <a href="usercenter-message.html">
+                                    <div class="msg-num"><span id="MsgNum">{{ request.user.get_unread_nums }}</span></div>
+                                </a>
+                            </div>
+                        {% else %}
+                            <a style="color:white" class="fr registerbtn" href="{% url 'register' %}">注册</a>
+                            <a style="color:white" class="fr loginbtn" href="{% url 'login' %}">登录</a>
+                        {% endif %}
 
 				        </div>
                     </div>
@@ -80,8 +83,8 @@
         <section>
             <div class="wp">
                 <ul  class="crumbs">
-                    <li><a href="index.html">首页</a>></li>
-                    <li><a href="org-list.html">课程机构</a>></li>
+                    <li><a href="{% url 'index' %}">首页</a>></li>
+                    <li><a href="{% url 'org:org_list' %}">课程机构</a>></li>
                     <li>{% block page_path %}机构首页{% endblock %}</li>
                 </ul>
             </div>
@@ -117,10 +120,16 @@
         <script src="{% static 'js/plugins/laydate/laydate.js' %}" type="text/javascript" ></script>
         <script src="{% static 'js/plugins/layer/layer.js' %}"></script>
         <script src="{% static 'js/plugins/queryCity/js/public.js' %}" type="text/javascript"></script>
+{#<script src="{% static 'js/deco-common.js' %}" type='text/javascript'></script>#}
 
         <script src="{% static 'js/plugins/jquery.raty.js' %}" type="text/javascript" ></script>
         <script type="text/javascript">
-        //收藏分享
+            $('.header .personal').hover(function(){
+                $('.header .userdetail').stop(true).show();
+                },function(){
+                $('.header .userdetail').stop(true).hide();
+                });
+            //收藏分享
             function add_fav(current_elem, fav_id, fav_type){
                 $.ajax({
                     cache: false,

@@ -42,11 +42,11 @@
                                     </dl>
                                     <div class="btn">
                                         <a class="personcenter fl" href="{% url 'users:user_info' %}">进入个人中心</a>
-                                        <a class="fr" href="/logout/">退出</a>
+                                        <a class="fr" href="{% url 'logout' %}">退出</a>
                                     </div>
                                 </div>
                                 <a href="usercenter-message.html">
-                                    <div class="msg-num"><span id="MsgNum">0</span></div>
+                                    <div class="msg-num"><span id="MsgNum">{{ request.user.get_unread_nums }}</span></div>
                                 </a>
                             </div>
                         {% else %}
@@ -86,11 +86,11 @@
 	<div class="wp list personal_list">
 	<div class="left">
         <ul>
-            <li class="active2"><a href="usercenter-info.html">个人资料</a></li>
-            <li ><a href="usercenter-mycourse.html">我的课程</a></li>
-            <li ><a href="usercenter-fav-course.html">我的收藏</a></li>
-            <li >
-                <a href="usercenter-message.html" style="position: relative;">
+            <li {% if request.path == '/users/info/' %}class="active2"{% endif %}><a href="{% url 'users:user_info' %}">个人资料</a></li>
+            <li {% if request.path == '/users/mycourse/' %}class="active2"{% endif %}><a href="{% url 'users:mycourse' %}">我的课程</a></li>
+            <li {% if request.path == '/users/myfav/org/' %}class="active2"{% endif %}><a href="{% url 'users:myfav_org' %}">我的收藏</a></li>
+            <li {% if request.path == '/users/mymessage/' %}class="active2"{% endif %}>
+                <a href="{% url 'users:mymessage' %}" style="position: relative;">
                     我的消息
                 </a>
             </li>
@@ -236,7 +236,7 @@
                     <span class="word3">验证码</span>
                     <input autocomplete="off" class="form-control-captcha find-password-captcha" id="find-password-captcha_1" name="captcha_f_1" placeholder="请输入验证码" type="text" />
                     <input class="form-control-captcha find-password-captcha" id="find-password-captcha_0" name="captcha_f_0" placeholder="请输入验证码" type="hidden" value="5f3c00e47fb1be12d2fd15b9a860711597721b3f" /> &nbsp;
-                    <img src="/captcha/image/5f3c00e47fb1be12d2fd15b9a860711597721b3f/" alt="captcha" class="captcha" />
+                    <img src="" alt="captcha" class="captcha" />
                 </div>
                 <div class="error btns" id="jsForgetTips"></div><!--忘记密码错误-->
                 <div class="button">
@@ -252,7 +252,7 @@
 
 
 <script src="{% static 'js/selectUi.js' %}" type='text/javascript'></script>
-<script type="text/javascript" src="{% static 'js/plugins/laydate/laydate.js' %}"></script>
+<script src="{% static 'js/plugins/laydate/laydate.js' %}" type="text/javascript" ></script>
 <script src="{% static 'js/plugins/layer/layer.js' %}"></script>
 <script src="{% static 'js/plugins/queryCity/js/public.js' %}" type="text/javascript"></script>
 <script src="{% static 'js/unslider.js' %}" type="text/javascript"></script>
@@ -266,131 +266,157 @@
 {% block custom_js %}{% endblock %}
 
 <script type="text/javascript">
-    $(document).ready(function() {
-        $('.jsDeleteFav_course').on('click', function () {
-            var _this = $(this),
-                favid = _this.attr('data-favid');
-            alert(favid)
-            $.ajax({
-                cache: false,
-                type: "POST",
-                url: "/org/add_fav/",
-                data: {
-                    fav_type: 1,
-                    fav_id: favid,
-                    csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
-                },
-                async: true,
-                success: function (data) {
-                    Dml.fun.winReload();
-                }
-            });
+
+    $('.jsDeleteFav_course').on('click', function () {
+        console.log('xixi');
+        var _this = $(this),
+            favid = _this.attr('data-favid');
+        console.log(favid);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "{% url 'org:add_fav' %}",
+            data: {
+                'fav_type': 1,
+                'fav_id': favid
+            },
+            async: true,
+            beforeSend:function(xhr, settings){
+                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            },
+            success: function (data) {
+                Dml.fun.winReload();
+            }
         });
     });
-    $(document).ready(function() {
-        $('.jsDeleteFav_teacher').on('click', function () {
+
+    $('.jsDeleteFav_teacher').on('click', function(){
             var _this = $(this),
                 favid = _this.attr('data-favid');
             $.ajax({
                 cache: false,
                 type: "POST",
-                url: "/org/add_fav/",
+                url: "{% url 'org:add_fav' %}",
                 data: {
                     fav_type: 3,
                     fav_id: favid,
-                    csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 async: true,
-                success: function (data) {
+                success: function(data) {
                     Dml.fun.winReload();
                 }
             });
-        });
     });
 
-    $(document).ready(function() {
-        $('.jsDeleteFav_org').on('click', function () {
-            var _this = $(this),
-                favid = _this.attr('data-favid');
-            $.ajax({
-                cache: false,
-                type: "POST",
-                url: "/org/add_fav/",
-                data: {
-                    fav_type: 2,
-                    fav_id: favid,
-                    csrfmiddlewaretoken: '799Y6iPeEDNSGvrTu3noBrO4MBLv6enY'
-                },
-                async: true,
-                success: function (data) {
-                    Dml.fun.winReload();
-                }
-            });
-        });
-    });
-</script>
 
-
-<script>
-        var shareUrl = '',
-            shareText = '',
-            shareDesc = '',
-            shareComment = '';
-        $(function () {
-            $(".bdsharebuttonbox a").mouseover(function () {
-                var type = $(this).attr('data-cmd'),
-                    $parent = $(this).parent('.bdsharebuttonbox'),
-                    fxurl = $parent.attr('data-url'),
-                    fxtext = $parent.attr('data-text'),
-                    fxdesc = $parent.attr('data-desc'),
-                    fxcomment = $parent.attr('data-comment');
-                switch (type){
-                    case 'tsina':
-                    case 'tqq':
-                    case 'renren':
-                            shareUrl = fxurl;
-                            shareText = fxdesc;
-                            shareDesc = '';
-                            shareComment = '';
-                        break;
-                    default :
-                            shareUrl = fxurl;
-                            shareText = fxtext;
-                            shareDesc = fxdesc;
-                            shareComment = fxcomment;
-                        break;
-                }
-            });
-        });
-        function SetShareUrl(cmd, config) {
-            if (shareUrl) {
-                config.bdUrl = "" + shareUrl;
-            }
-            if(shareText){
-                config.bdText = shareText;
-            }
-            if(shareDesc){
-                config.bdDesc = shareDesc;
-            }
-            if(shareComment){
-                config.bdComment = shareComment;
-            }
-
-            return config;
-        }
-        window._bd_share_config = {
-            "common": {
-                "onBeforeClick":SetShareUrl,
-                "bdPic":"",
-                "bdMini":"2",
-                "searchPic":"1",
-                "bdMiniList":false
+    #以下有效
+    $('.jsDeleteFav_org').on('click', function(){
+        var _this = $(this),
+            favid = _this.attr('data-favid');
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "{% url "org:add_fav" %}",
+            data: {
+                fav_type: 2,
+                fav_id: favid,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
             },
-            "share": {
-                "bdSize":"16"
+            async: true,
+            success: function(data) {
+                Dml.fun.winReload();
             }
-        };
-    with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+        });
+    });
+
+
+    #以下无效
+    {#$(document).ready(function() {#}
+    {#    console.log('hello world');#}
+    {#    $('.jsDeleteFav_org').on('click', function () {#}
+    {#        var _this = $(this),#}
+    {#            favid = _this.attr('data-favid');#}
+    {#        console.log(favid);#}
+    {#        $.ajax({#}
+    {#            cache: false,#}
+    {#            type: "POST",#}
+    {#            url: "{% url 'org:add_fav' %}",#}
+    {#            data: {#}
+    {#                fav_type: 2,#}
+    {#                fav_id: favid,#}
+    {#                csrfmiddlewaretoken: '{{ csrf_token }}'#}
+    {#            },#}
+    {#            async: true,#}
+    {#            success: function (data) {#}
+    {#                Dml.fun.winReload();#}
+    {#            }#}
+    {#        });#}
+    {#    });#}
+    {#});#}
 </script>
+
+
+{#<script>#}
+{#        var shareUrl = '',#}
+{#            shareText = '',#}
+{#            shareDesc = '',#}
+{#            shareComment = '';#}
+{#        $(function () {#}
+{#            $(".bdsharebuttonbox a").mouseover(function () {#}
+{#                var type = $(this).attr('data-cmd'),#}
+{#                    $parent = $(this).parent('.bdsharebuttonbox'),#}
+{#                    fxurl = $parent.attr('data-url'),#}
+{#                    fxtext = $parent.attr('data-text'),#}
+{#                    fxdesc = $parent.attr('data-desc'),#}
+{#                    fxcomment = $parent.attr('data-comment');#}
+{#                switch (type){#}
+{#                    case 'tsina':#}
+{#                    case 'tqq':#}
+{#                    case 'renren':#}
+{#                            shareUrl = fxurl;#}
+{#                            shareText = fxdesc;#}
+{#                            shareDesc = '';#}
+{#                            shareComment = '';#}
+{#                        break;#}
+{#                    default :#}
+{#                            shareUrl = fxurl;#}
+{#                            shareText = fxtext;#}
+{#                            shareDesc = fxdesc;#}
+{#                            shareComment = fxcomment;#}
+{#                        break;#}
+{#                }#}
+{#            });#}
+{#        });#}
+{#        function SetShareUrl(cmd, config) {#}
+{#            if (shareUrl) {#}
+{#                config.bdUrl = "" + shareUrl;#}
+{#            }#}
+{#            if(shareText){#}
+{#                config.bdText = shareText;#}
+{#            }#}
+{#            if(shareDesc){#}
+{#                config.bdDesc = shareDesc;#}
+{#            }#}
+{#            if(shareComment){#}
+{#                config.bdComment = shareComment;#}
+{#            }#}
+{##}
+{#            return config;#}
+{#        }#}
+{#        window._bd_share_config = {#}
+{#            "common": {#}
+{#                "onBeforeClick":SetShareUrl,#}
+{#                "bdPic":"",#}
+{#                "bdMini":"2",#}
+{#                "searchPic":"1",#}
+{#                "bdMiniList":false#}
+{#            },#}
+{#            "share": {#}
+{#                "bdSize":"16"#}
+{#            }#}
+{#        };#}
+{#    with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];#}
+{#</script>#}
 </body>
 </html>
