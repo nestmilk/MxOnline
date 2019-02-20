@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from pure_pagination import PageNotAnInteger, Paginator, EmptyPage
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.contrib.auth import authenticate, login, logout
 from django.views.generic.base import View
 
@@ -16,7 +16,7 @@ from operation.models import UserCourse, UserFavorite, UserMessage
 from organization.models import CourseOrg, Teacher
 from users import models
 from users.forms import LoginForm, RegisterForm, ForgetForm, ModifyPwdForm, UploadImageForm, UserInfoForm
-from users.models import UserProfile, EmailVerifyRecord
+from users.models import UserProfile, EmailVerifyRecord, Banner
 # from utils.email_send import send_register_email
 # Create your views here.
 from utils.email_send import send_register_email
@@ -52,7 +52,7 @@ class LoginView(View):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return render(request, "index.html")
+                    return HttpResponseRedirect(reverse('index'))
                 else:
                     return render(request, "login.html", {"msg": "账号尚未激活！"})
 
@@ -114,7 +114,7 @@ class RegisterView(View):
 
             #写入欢迎注册消息
             user_message = UserMessage()
-            user_message.user = user_profile
+            user_message.user = user_profile.id
             user_message.message = "欢迎注册慕学在线网"
             user_message.save()
 
@@ -342,6 +342,13 @@ class MymessageView(LoginRequiredMixin, View):
     def get(self,request):
         all_messages = UserMessage.objects.filter(user=request.user.id)
 
+        #用户进入个人消息后，清空未读消息的记录
+        all_unread_messages = all_messages.filter(has_read=False)
+        for unread_message in all_unread_messages:
+            unread_message.has_read = True
+            unread_message.save()
+
+        #对个人消息进行分页
         try:
             page = request.GET.get('page', 1)
         except PageNotAnInteger:
@@ -354,3 +361,37 @@ class MymessageView(LoginRequiredMixin, View):
         return render(request, 'usercenter-message.html', {
             "messages": messages
         })
+
+
+class IndexView(View):
+    """
+    慕学在线网首页
+    """
+    def get(self, request):
+        #取出轮播图
+
+        all_banners = Banner.objects.all().order_by('index')
+        courses = Course.objects.filter(is_banner=False)[:5]
+        banner_courses = Course.objects.filter(is_banner=True)[:3]
+        course_orgs = CourseOrg.objects.all()[:15]
+        return render(request, 'index.html', {
+            'all_banners': all_banners,
+            'courses': courses,
+            'banner_courses': banner_courses,
+            'course_orgs': course_orgs,
+
+        })
+
+
+def page_not_found(request):
+    #全局404处理函数
+    response = render_to_response('404.html', {})
+    response.status_code = 404
+    return response
+
+
+def page_error(request):
+    # 全局500处理函数
+    response = render_to_response('500.html', {})
+    response.status_code = 500
+    return response

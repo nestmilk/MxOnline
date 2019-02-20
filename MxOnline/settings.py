@@ -32,7 +32,9 @@ SECRET_KEY = 'z_q-62hc((82#31o6-8i4c1jwy)m0ce1&(x8v$=2&pf$=ydr$8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+
+#当debug=false时候必须配置这个，'*"表上所有都可以
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -52,6 +54,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'captcha',
     'pure_pagination',
+    'DjangoUeditor',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -140,9 +143,14 @@ USE_TZ = False
 
 #用于页面中的{%  load staticfiles %} {% static “css/...” %}
 STATIC_URL = '/static/'
+
+
+#当debug=False时候，会失效，需要配饰STATIC_ROOT
 #这个在collectstatics时候打开，并需要注释掉下面的STATICFILES_DIRS
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-#用于页面中herf=“/static/css/..."
+# STATIC_ROOT = os.path.join(BASE_DIR,'static')
+
+
+#用于页面中herf=“/static/css/..."  当debug=False时候，会失效，需要配饰STATIC_ROOT
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static')
 ]

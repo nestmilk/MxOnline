@@ -25,11 +25,12 @@ from django.views.static import serve
 import xadmin
 from MxOnline.settings import MEDIA_ROOT
 from organization.views import OrgView
-from users.views import LoginView, RegisterView, ActiveUserView, ForgetPwdView, ResetView, ModifyPwdView, LogoutView
+from users.views import LoginView, RegisterView, ActiveUserView, ForgetPwdView, ResetView, ModifyPwdView, LogoutView, \
+    IndexView
 
 urlpatterns = [
     url(r'^xadmin/', xadmin.site.urls),
-    url(r'^$', TemplateView.as_view(template_name='index.html'), name='index'),
+    url(r'^$', IndexView.as_view(), name='index'),
     url(r'^login/$', LoginView.as_view(), name='login'),
     url(r'^logout/$', LogoutView.as_view(), name='logout'),
 
@@ -49,7 +50,20 @@ urlpatterns = [
     #配置html页面针对数据库中上传文件的访问处理函数,这个MDEIA_ROOT是自己引入的
     url(r'^media/(?P<path>.*)$', serve, {"document_root": MEDIA_ROOT}),
 
-    #
+    #当debug=false时候，需要配置这个才能访问静态文件
+    # url(r'^static/(?P<path>.*)$', serve, {"document_root": STATIC_ROOT}),
+
+    #用户相关url配置
     url(r'^users/', include('users.urls', namespace="users")),
 
+    #富文本相关url
+    url(r'^ueditor/',include('DjangoUeditor.urls' )),
+
 ]
+
+
+#全局404页面配置
+handler404 = 'users.views.page_not_found'
+
+#全局500页面配置
+handler500 = 'users.views.page_error'

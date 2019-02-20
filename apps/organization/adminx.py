@@ -16,9 +16,9 @@ class CityDictAdmin(object):
 
 class CourseOrgAdmin(object):
     list_display = ['name', 'desc','category', 'click_nums','fav_nums','image','address','city','students', 'course_nums','add_time']
-    search_fields = ['name', 'desc','category', 'click_nums','fav_nums','image','address','city','students', 'course_nums']
+    search_fields = ['name', 'desc','category', 'click_nums','fav_nums','image','address','city__name','students', 'course_nums']
     list_filter = ['name', 'desc','category', 'click_nums','fav_nums','image','address','city','students', 'course_nums','add_time']
-
+    relfield_style = 'fk-ajax'
 
 class TeacherAdmin(object):
     list_display = ['name', 'org', 'work_years','work_company','work_position','points','click_nums','fav_nums','image','add_time']
