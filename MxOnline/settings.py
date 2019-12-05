@@ -101,7 +101,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mxonline',
         'USER': 'root',
-        'PASSWORD': 'lius0037',
+        'PASSWORD': '123456',
         'HOST': '127.0.0.1'
     }
 }
@@ -156,6 +156,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static')
 ]
+
 # 替换自带auth_user
 AUTH_USER_MODEL = 'users.UserProfile'
 #替换自带的authenticate，校验自己设定的字段
